@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>✨ Vibe Roller</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2em; background: #f4f0eb; }
+    button { margin: 0.5em; padding: 1em; font-size: 1em; border-radius: 8px; }
+    .result { margin-top: 2em; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>🎲 D&D Vibe Roller</h1>
+  <div id="buttons"></div>
+  <div class="result" id="result"></div>
+  <button id="roll-again" style="display:none;">Roll Again</button>
+
+  <script>
+    const apiUrl = "https://script.google.com/macros/s/AKfycbzmrG1aR7aEoDQ5COoyCghYy2-SmOz3UMq6Qe7EIZJHHIxNSWTqMRZzeQpXDVMr9qmC/exec";
+    let vibes = {};
+    let lastCategory = null;
+
+    async function fetchVibes() {
+      const res = await fetch(apiUrl);
+      vibes = await res.json();
+      renderButtons();
+    }
+
+    function renderButtons() {
+      const container = document.getElementById("buttons");
+      container.innerHTML = "";
+      for (let category in vibes) {
+        const btn = document.createElement("button");
+        btn.textContent = category;
+        btn.onclick = () => roll(category);
+        container.appendChild(btn);
+      }
+    }
+
+    function roll(category) {
+      lastCategory = category;
+      const items = vibes[category];
+      if (!items.length) {
+        document.getElementById("result").innerHTML = `<strong>${category}:</strong> No more items to roll!`;
+        document.getElementById("roll-again").style.display = "none";
+        return;
+      }
+      const index = Math.floor(Math.random() * items.length);
+      const result = items.splice(index, 1)[0];
+      document.getElementById("result").innerHTML = `<strong>${category}:</strong> ${result}`;
+      document.getElementById("roll-again").style.display = "inline-block";
+    }
+
+    document.getElementById("roll-again").onclick = () => {
+      if (lastCategory) roll(lastCategory);
+    };
+
+    fetchVibes();
+  </script>
+</body>
+</html>
